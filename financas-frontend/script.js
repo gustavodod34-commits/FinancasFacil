@@ -725,11 +725,13 @@ async function sendChatMessage() {
 
   try {
     // 3. Dispara a requisição real para o seu server.js na porta 5000
-    const response = await fetch('https://financas-facil-api.onrender.com/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: messageText })
-    });
+    const response = await fetch('https://financas-facil-api.onrender.com/api/transactions', {
+    method: 'GET', // (Ou 'POST' no caso do login)
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    credentials: 'include' // <--- ISSO AQUI DIZ PRO CHROME ENVIAR O COOKIE!
+});
 
     const data = await response.json();
 

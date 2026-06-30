@@ -16,7 +16,7 @@ app.use(express.json());
 app.use(cookieParser()); 
 
 app.use(cors({
-    origin: true, 
+    origin: 'https://financas-facil-hazel.vercel.app', 
     credentials: true 
 }));
 

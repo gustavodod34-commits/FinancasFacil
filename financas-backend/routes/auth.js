@@ -56,11 +56,10 @@ router.post('/login', async (req, res) => {
 
     // 4. Envia o Token num Cookie HttpOnly (Proteção máxima contra Hackers)
     res.cookie('token', token, {
-      httpOnly: true, // O JavaScript do navegador não consegue ler isto!
-      secure: process.env.NODE_ENV === 'production', // Só HTTPS se estiver num servidor real
-      sameSite: 'lax', // Proteção contra ataques de fora do site
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 dias em milissegundos
-    });
+    httpOnly: true,
+    secure: true, // Exige HTTPS (como o Render e a Vercel usam HTTPS, é obrigatório)
+    sameSite: 'none' // Diz ao navegador: "Pode aceitar esse cookie de outro domínio"
+});
 
     // 5. Responde ao frontend dizendo que deu tudo certo e envia os dados básicos
     res.json({

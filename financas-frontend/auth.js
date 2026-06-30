@@ -151,7 +151,7 @@ async function handleAuth(event) {
       // ==========================================
       // 1. LÓGICA DE LOGIN (ENTRAR)
       // ==========================================
-      const response = await fetch('http://127.0.0.1:5000/api/auth/login', {
+      const response = await fetch('https://financas-facil-api.onrender.com/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -179,7 +179,7 @@ async function handleAuth(event) {
       // ==========================================
       const name = document.getElementById('userName').value;
       
-      const response = await fetch('http://127.0.0.1:5000/api/auth/register', {
+      const response = await fetch('https://financas-facil-api.onrender.com/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

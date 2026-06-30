@@ -3,7 +3,7 @@
    ===================================================== */
 
 // ── 1. VARIÁVEIS GLOBAIS E CONFIGURAÇÕES ─────────────
-const API_URL = 'http://127.0.0.1:5000/api/transactions';
+const API_URL = 'https://financas-facil-api.onrender.com/api/transactions';
 const STORAGE_THEME_KEY = 'financasfacil_theme';
 
 let transactions  = [];
@@ -145,7 +145,7 @@ async function apiDeleteTransaction(id) {
 async function logout() {
     try {
         // 1. Avisa o backend para destruir o cookie de segurança
-        await fetch('http://127.0.0.1:5000/api/auth/logout', { 
+        await fetch('https://financas-facil-api.onrender.com/api/auth/logout', { 
             method: 'POST', 
             credentials: 'include' 
         });
@@ -725,7 +725,7 @@ async function sendChatMessage() {
 
   try {
     // 3. Dispara a requisição real para o seu server.js na porta 5000
-    const response = await fetch('http://localhost:5000/api/chat', {
+    const response = await fetch('https://financas-facil-api.onrender.com/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: messageText })

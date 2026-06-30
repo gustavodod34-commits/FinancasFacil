@@ -152,11 +152,13 @@ async function handleAuth(event) {
       // 1. LÓGICA DE LOGIN (ENTRAR)
       // ==========================================
       const response = await fetch('https://financas-facil-api.onrender.com/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ email, password: pass })
-      });
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ email, password }),
+    credentials: 'include' // <--- ESSA LINHA AQUI É A CHAVE DE OURO!
+});
 
       const data = await response.json();
 

@@ -723,39 +723,41 @@ async function sendChatMessage() {
   messagesContainer.appendChild(typingDiv);
   messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-  try {
-    // 3. Dispara a requisição real para o seu server.js na porta 5000
-    const response = await fetch('https://financas-facil-api.onrender.com/api/transactions', {
-    method: 'GET', // (Ou 'POST' no caso do login)
-    headers: {
-        'Content-Type': 'application/json'
-    },
-    credentials: 'include' // <--- ISSO AQUI DIZ PRO CHROME ENVIAR O COOKIE!
-});
+  // Procure o try/catch dentro da função do FinBot e substitua por este:
+try {
+  // 3. Dispara a requisição real para a rota do chat da IA
+  const response = await fetch('https://financas-facil-api.onrender.com/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include', // <--- Permite que a IA saiba quem é o usuário logado
+    body: JSON.stringify({ message: userMessage })
+  });
 
-    const data = await response.json();
+  const data = await response.json();
 
-    // Remove o balão de "Digitando..."
-    const typingIndicator = document.getElementById('finbot-typing');
-    if (typingIndicator) typingIndicator.remove();
+  // Remove o balão de "Digitando..."
+  const typingIndicator = document.getElementById('finbot-typing');
+  if (typingIndicator) typingIndicator.remove();
 
-    // 4. Renderiza a resposta inteligente e real do Gemini 2.0 Flash
-    const botDiv = document.createElement('div');
-    botDiv.className = 'message bot-message';
-    botDiv.textContent = data.reply;
-    messagesContainer.appendChild(botDiv);
-    
-  } catch (error) {
-    console.error('Erro ao buscar resposta da IA:', error);
-    
-    const typingIndicator = document.getElementById('finbot-typing');
-    if (typingIndicator) typingIndicator.remove();
+  // 4. Renderiza a resposta inteligente e real do Gemini
+  const botDiv = document.createElement('div');
+  botDiv.className = 'message bot-message';
+  botDiv.textContent = data.reply;
+  messagesContainer.appendChild(botDiv);
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  
+} catch (error) {
+  console.error('Erro ao buscar resposta da IA:', error);
+  
+  const typingIndicator = document.getElementById('finbot-typing');
+  if (typingIndicator) typingIndicator.remove();
 
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'message bot-message';
-    errorDiv.textContent = 'Ih, deu erro na minha conexão com o servidor. O backend está ligado?';
-    messagesContainer.appendChild(errorDiv);
-  }
+  const errorDiv = document.createElement('div');
+  errorDiv.className = 'message bot-message';
+  errorDiv.textContent = 'Desculpe, estou com problemas para me conectar ao servidor agora. 😢';
+  messagesContainer.appendChild(errorDiv);
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
 
   messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }

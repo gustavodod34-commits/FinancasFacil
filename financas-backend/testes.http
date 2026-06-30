@@ -1,0 +1,12 @@
+### Testar se a API está viva (Rota Base)
+GET http://localhost:5000/
+
+###
+
+### Testar a Rota do Chatbot diretamente (Simulando o Frontend)
+POST http://localhost:5000/api/chat
+Content-Type: application/json
+
+{
+    "message": "Quero dicas para economizar no mercado"
+}

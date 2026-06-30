@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Acesso — FinançasFácil</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="auth-body">
+
+  <div style="position: absolute; top: 24px; right: 24px;">
+    <button class="theme-btn" onclick="toggleTheme()" aria-label="Alternar tema">
+      <span class="theme-icon" id="themeIcon">🌙</span>
+      <span class="theme-label" id="themeLabel" style="display: inline;">Escuro</span>
+    </button>
+  </div>
+
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="logo auth-logo">
+          <span class="logo-icon">◈</span>
+          <span class="logo-text">FinançasFácil</span>
+        </div>
+        <h2 id="authTitle" class="auth-title">Bem-vindo de volta</h2>
+        <p id="authSubtitle" class="auth-subtitle">Acesse sua conta para continuar.</p>
+      </div>
+
+      <form id="authForm" onsubmit="handleAuth(event)">
+        <div class="form-group" id="nameGroup" style="display: none; margin-bottom: 14px;">
+          <label class="form-label" for="userName">Nome completo</label>
+          <input class="form-input" type="text" id="userName" placeholder="Ex: João Silva" autocomplete="name" />
+        </div>
+
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label class="form-label" for="userEmail">E-mail</label>
+          <input class="form-input" type="email" id="userEmail" placeholder="seu@email.com" required autocomplete="email" />
+        </div>
+
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label class="form-label" for="userPass">Senha</label>
+          <div style="position: relative;">
+            <input class="form-input" type="password" id="userPass" placeholder="••••••••" required autocomplete="current-password" style="width: 100%; padding-right: 40px;" />
+            <button type="button" id="togglePassword" title="Mostrar/Ocultar senha" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 0; display: flex; align-items: center; color: #a0aec0; opacity: 0.7; transition: opacity 0.2s;">
+                <svg id="eyeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+            </button>
+          </div>
+        </div>
+
+        <div id="captchaContainer" style="margin-bottom: 14px; background: rgba(255,255,255,0.02); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+            <label for="captchaInput" class="form-label" style="display: block; margin-bottom: 6px; font-size: 0.85rem;">🛡️ Segurança: Quanto é <strong id="captchaQuestion"></strong>?</label>
+            <input class="form-input" type="number" id="captchaInput" required style="width: 100%; padding: 8px;" placeholder="Digite o resultado">
+        </div>
+
+        <div id="forgotPasswordContainer" style="text-align: right; margin-bottom: 20px;">
+            <a href="#" style="font-size: 0.85rem; color: #6b46c1; text-decoration: none; font-weight: 500;">Esqueci minha senha</a>
+        </div>
+
+        <p class="form-feedback auth-feedback" id="authFeedback" style="display: none; margin: 0 0 14px 0; text-align: center; font-size: 0.85rem; font-weight: 500;"></p>
+
+        <button type="submit" class="btn-add auth-btn" id="authBtn" style="margin-top: 0;">Entrar na minha conta</button>
+      </form>
+
+      <div class="auth-footer">
+        <span id="switchText">Ainda não tem uma conta?</span>
+        <button type="button" class="btn-switch" onclick="toggleAuthMode()" id="switchBtn">Criar conta</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="auth.js"></script>
+</body>
+</html>

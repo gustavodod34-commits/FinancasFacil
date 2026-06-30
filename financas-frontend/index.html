@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinançasFácil — Gestão Financeira</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════ HEADER ═══════════════════════════════ -->
+ <header class="header">
+  <div class="header-inner">
+    
+    <div class="header-left">
+      <a href="#" onclick="logout()" class="logout-btn">Sair</a>
+      <span class="greeting-text">Olá, <strong id="userNameDisplay">Visitante</strong>! 👋</span>
+    </div>
+    
+    <div class="header-center">
+      <div class="logo">
+        <span class="logo-icon">◈</span>
+        <span class="logo-text">FinançasFácil</span>
+        <span class="version-badge">v1.2</span>
+      </div>
+    </div>
+    
+    <div class="header-right">
+      <span class="header-date" id="currentDate"></span>
+      <button class="theme-btn" onclick="toggleTheme()" aria-label="Alternar tema">
+        <span class="theme-icon" id="themeIcon">🌙</span>
+        <span class="theme-label" id="themeLabel">Escuro</span>
+      </button>
+    </div>
+
+  </div>
+</header>
+
+  <main class="container">
+
+    <!-- ═══════════════════════════ DASHBOARD ════════════════════════════ -->
+    <section class="dashboard" aria-label="Resumo financeiro">
+
+      <div class="card card--balance">
+        <div class="card-accent"></div>
+        <div class="card-body">
+          <p class="card-label">Saldo Atual</p>
+          <h2 class="card-value" id="totalBalance">R$ 0,00</h2>
+          <div class="balance-bar-wrap"><div class="balance-bar" id="balanceBar"></div></div>
+          <p class="card-sub" id="balanceSub">Nenhuma transação ainda</p>
+        </div>
+        <div class="card-icon card-icon--balance">⬡</div>
+      </div>
+
+      <div class="card card--income">
+        <div class="card-accent"></div>
+        <div class="card-body">
+          <p class="card-label">Total de Receitas</p>
+          <h2 class="card-value" id="totalIncome">R$ 0,00</h2>
+          <p class="card-sub" id="incomeSub">0 entradas</p>
+        </div>
+        <div class="card-icon card-icon--income">↑</div>
+      </div>
+
+      <div class="card card--expense">
+        <div class="card-accent"></div>
+        <div class="card-body">
+          <p class="card-label">Total de Despesas</p>
+          <h2 class="card-value" id="totalExpense">R$ 0,00</h2>
+          <p class="card-sub" id="expenseSub">0 saídas</p>
+        </div>
+        <div class="card-icon card-icon--expense">↓</div>
+      </div>
+
+    </section>
+
+    <!-- ════════════════════════════ CHART ROW ═══════════════════════════ -->
+    <section class="chart-row" aria-label="Distribuição por categoria">
+      <div class="chart-panel">
+
+        <div class="chart-panel-header">
+          <h3 class="panel-title">Distribuição</h3>
+          <div class="chart-tabs" role="group">
+            <button class="chart-tab active" id="tabTypeBtn" onclick="setChartMode('type')">Tipo</button>
+            <button class="chart-tab"        id="tabCatBtn"  onclick="setChartMode('category')">Categoria</button>
+          </div>
+        </div>
+
+        <div class="chart-body">
+          <div class="donut-wrap">
+            <!-- SVG populated by JS; slices get data-pct / data-label attributes for hover -->
+            <svg class="donut-svg" viewBox="0 0 200 200" id="donutSvg"></svg>
+            <div class="donut-center">
+              <span class="donut-pct"   id="donutPct">—</span>
+              <span class="donut-label" id="donutLabel">receitas</span>
+            </div>
+          </div>
+          <ul class="chart-legend" id="chartLegend"></ul>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══════════════════════ FORM + TABLE GRID ═════════════════════════ -->
+    <div class="content-grid">
+
+      <!-- ─────────────── FORM ─────────────── -->
+      <aside class="form-panel">
+        <h3 class="panel-title">Nova Transação</h3>
+
+        <div class="type-toggle" role="group" aria-label="Tipo de transação">
+          <button class="toggle-btn toggle-btn--income active" id="btnIncome"
+                  onclick="selectType('income')"><span>↑</span> Receita</button>
+          <button class="toggle-btn toggle-btn--expense"       id="btnExpense"
+                  onclick="selectType('expense')"><span>↓</span> Despesa</button>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="description">Descrição</label>
+          <input class="form-input" type="text" id="description"
+            placeholder="Ex: Salário, Aluguel, Mercado…" maxlength="60" autocomplete="off" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="category">Categoria</label>
+          <select class="form-input form-select" id="category">
+            <option value="">Selecione uma categoria…</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="amount">Valor (R$)</label>
+          <input class="form-input" type="number" id="amount"
+            placeholder="0,00" min="0.01" step="0.01" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="txDate">Data</label>
+          <input class="form-input" type="date" id="txDate" />
+        </div>
+
+        <button class="btn-add" onclick="addTransaction()">Adicionar Transação</button>
+        <p class="form-feedback" id="formFeedback"></p>
+      </aside>
+
+      <!-- ─────────────── TABLE ─────────────── -->
+      <section class="table-panel">
+        <div class="table-header">
+          <h3 class="panel-title">Histórico de Transações</h3>
+
+          <div class="filter-bar">
+            <div class="filter-row">
+              <input class="search-input" type="text" id="searchInput"
+                placeholder="🔍 Buscar…" oninput="renderTable()" />
+              <select class="filter-select" id="filterMonth"    onchange="renderTable()">
+                <option value="all">Todos os meses</option>
+              </select>
+              <select class="filter-select" id="filterType"     onchange="renderTable()">
+                <option value="all">Todos os tipos</option>
+                <option value="income">Receitas</option>
+                <option value="expense">Despesas</option>
+              </select>
+              <select class="filter-select" id="filterCategory" onchange="renderTable()">
+                <option value="all">Todas as categorias</option>
+              </select>
+            </div>
+            <button class="btn-export" onclick="exportCSV()" title="Exportar transações filtradas como CSV">
+              ↓ Exportar CSV
+            </button>
+          </div>
+        </div>
+
+        <div class="table-wrap" id="tableWrap"></div>
+
+        <div class="empty-state" id="emptyState" hidden>
+          <span class="empty-icon">📋</span>
+          <p>Nenhuma transação encontrada.</p>
+          <span>Ajuste os filtros ou adicione uma nova transação.</span>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ════════════════════════════ EDIT MODAL ══════════════════════════ -->
+  <div id="editModal" class="modal" hidden aria-modal="true" role="dialog" aria-labelledby="modalTitle">
+    <div class="modal-overlay" onclick="closeModal()"></div>
+
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalTitle">Editar Transação</h3>
+        <button class="modal-close" onclick="closeModal()" aria-label="Fechar">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round">
+            <line x1="2" y1="2" x2="16" y2="16"/>
+            <line x1="16" y1="2" x2="2" y2="16"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- type toggle inside modal -->
+      <div class="type-toggle" role="group" style="margin-bottom:20px">
+        <button class="toggle-btn toggle-btn--income active" id="mBtnIncome"
+                onclick="modalSelectType('income')"><span>↑</span> Receita</button>
+        <button class="toggle-btn toggle-btn--expense"       id="mBtnExpense"
+                onclick="modalSelectType('expense')"><span>↓</span> Despesa</button>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="mDescription">Descrição</label>
+        <input class="form-input" type="text" id="mDescription" maxlength="60" autocomplete="off" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="mCategory">Categoria</label>
+        <select class="form-input form-select" id="mCategory">
+          <option value="">Selecione uma categoria…</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="mAmount">Valor (R$)</label>
+        <input class="form-input" type="number" id="mAmount" min="0.01" step="0.01" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="mDate">Data</label>
+        <input class="form-input" type="date" id="mDate" />
+      </div>
+
+      <p class="form-feedback" id="modalFeedback"></p>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+        <button class="btn-save"   onclick="saveEdit()">Salvar Alterações</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <div class="chat-widget">
+  <button class="chat-trigger" onclick="toggleChat()" aria-label="Abrir assistente">
+    <span class="chat-icon">💬</span>
+  </button>
+
+  <div class="chat-window" id="chatWindow">
+    <div class="chat-header">
+      <div class="chat-bot-info">
+        <span class="chat-bot-avatar">🤖</span>
+        <div>
+          <h4>FinBot</h4>
+          <span class="chat-status">Online</span>
+        </div>
+      </div>
+      <button class="chat-close-btn" onclick="toggleChat()">×</button>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+      <div class="message bot-message">
+        Olá! Sou o FinBot, seu assistente financeiro. Como posso te ajudar hoje?
+      </div>
+    </div>
+
+    <div class="chat-input-area">
+      <input type="text" id="chatInput" placeholder="Digite sua dúvida..." onkeypress="handleChatKey(event)" />
+      <button onclick="sendChatMessage()">Enviar</button>
+    </div>
+  </div>
+</div>
+
+  <script src="script.js"></script>
+</body>
+</html>

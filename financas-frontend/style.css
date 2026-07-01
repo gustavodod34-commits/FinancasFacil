@@ -81,10 +81,12 @@ body {
    HEADER & NAVIGATION (CORREÇÃO DE ALINHAMENTO)
 ══════════════════════════════════════════════════════════ */
 .header {
-  width: 100%;
-  background-color: var(--surface);
+  background: var(--surface);
   border-bottom: 1px solid var(--border);
-  padding: 16px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 999; /* Garante que o menu fique na frente dos gráficos e tabelas */
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03); /* Sombra sutil para dar efeito de flutuação ao rolar */
 }
 
 .header-inner {
@@ -679,20 +681,53 @@ tbody td { padding: 12px 20px; vertical-align: middle; }
 
 @media (max-width: 768px) {
   .dashboard { grid-template-columns: 1fr; }
+
+  /* 1. HEADER FIXO E REORGANIZADO TIPO APP */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05); /* Sombrinha para destacar que está fixo */
+  }
+  .header-inner {
+    flex-direction: row; 
+    flex-wrap: wrap; 
+    justify-content: space-between;
+    padding: 12px 14px;
+    gap: 12px;
+  }
   
-  /* Ajusta o Header para não encavalar os links */
-  .header-inner { flex-direction: column; gap: 16px; text-align: center; }
-  .header-left, .header-right { width: 100%; justify-content: center; flex-wrap: wrap; }
+  /* Força a Logo para o topo isolada */
+  .header-center {
+    order: 1;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
   
-  /* Ajusta os filtros e botões da tabela */
+  /* Mantém Saudações e Botão de Tema lado a lado abaixo da logo */
+  .header-left { order: 2; width: auto; justify-content: flex-start; }
+  .header-right { order: 3; width: auto; justify-content: flex-end; }
+  .header-date { display: none; } /* Oculta a data para deixar mais limpo */
+
+  /* 2. TABELA COM CABEÇALHO FIXO */
+  .table-wrap {
+    max-height: 450px; /* Cria uma barra de rolagem só para a tabela */
+    overflow-y: auto;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: var(--surface2); /* Impede que os textos fiquem transparentes ao rolar */
+  }
+
+  /* 3. FILTROS */
   .filter-row { flex-direction: column; width: 100%; }
   .filter-select, .search-input { width: 100%; }
-  
-  /* Ajusta a tabela para não vazar da tela */
-  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   th, td { font-size: 13px; padding: 12px 10px; }
-  
-  /* Esconde a coluna de categoria apenas se a tela for muito pequena */
   .col-cat { display: none; }
 }
 

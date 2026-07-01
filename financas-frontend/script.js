@@ -56,10 +56,9 @@ document.addEventListener('DOMContentLoaded', () => {
 // ── 3. FUNÇÕES DE ACESSO À API (MONGODB) ──────────────
 async function loadTransactionsFromAPI() {
     try {
-        // O "credentials: 'include'" é OBRIGATÓRIO para enviar o cookie de segurança
         const response = await fetch(API_URL, {
             method: 'GET',
-            credentials: 'include',
+            credentials: 'include', // <--- Envia o cookie para o servidor
             headers: {
                 'Cache-Control': 'no-cache, no-store, must-revalidate',
                 'Pragma': 'no-cache',
@@ -71,15 +70,14 @@ async function loadTransactionsFromAPI() {
             const data = await response.json();
             transactions = data.map(t => ({ ...t, id: t._id }));
             
-            // Normaliza categorias antigas para versão com emoji
             transactions.forEach(t => { t.category = matchCategory(t.category); });
             
             populateMonthFilter();
             populateCategoryFilter();
-            render(); // Atualiza a tela
+            render(); 
         } else {
             console.error('Sessão inválida. Redirecionando...');
-            logout();
+            // Se der 401, ele não vai dar logout imediato enquanto testamos
         }
     } catch (error) {
         console.error('Erro ao buscar transações:', error);

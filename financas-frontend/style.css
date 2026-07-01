@@ -91,11 +91,13 @@ body {
 
 .header-inner {
   width: 100%;
-  max-width: 1280px; /* Alinhe com a largura máxima do seu container principal */
+  max-width: 1200px; /* mesma largura do .container */
+  box-sizing: border-box;
   margin: 0 auto;
   display: flex;
-  justify-content: space-between; /* Empurra o logo para a esquerda e o resto para a direita */
-  align-items: center; /* Centraliza verticalmente todos os elementos */
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px; /* mesmo padding lateral do .container — alinha com os cards */
   gap: 20px;
 }
 
@@ -704,16 +706,20 @@ tbody td { padding: 12px 20px; vertical-align: middle; }
     justify-content: center;
   }
 
-  /* 2ª linha: saudação centralizada */
-  .greeting-text {
+  /* 2ª linha: Sair, nome do usuário e Tema na mesma altura */
+  .logout-btn {
     order: 2;
-    flex-basis: 100%;
+    flex-shrink: 0;
+  }
+  .greeting-text {
+    order: 3;
+    flex: 1;
     text-align: center;
   }
-
-  /* 3ª linha: Sair à esquerda, Tema à direita */
-  .logout-btn { order: 3; }
-  .theme-btn  { order: 4; }
+  .theme-btn {
+    order: 4;
+    flex-shrink: 0;
+  }
   .header-date { display: none; }
 
   /* Tabela com rolagem interna e cabeçalho fixo */

@@ -666,32 +666,38 @@ tbody td { padding: 12px 20px; vertical-align: middle; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 /* ══════════ RESPONSIVE ══════════ */
-@media (max-width: 1000px) {
+/* =====================================================
+   📱 VERSÃO MOBILE TOTALMENTE REDESENHADA (COMPLETA)
+   ===================================================== */
+
+@media (max-width: 1024px) {
   .dashboard { grid-template-columns: 1fr 1fr; }
   .dashboard .card--balance { grid-column: 1 / -1; }
-}
-
-@media (max-width: 900px) {
-  .chart-panel { flex-direction: column; align-items: flex-start; padding: 18px 20px; }
-  .chart-panel-header { flex-direction: row; align-items: center; width: 100%; }
   .content-grid { grid-template-columns: 1fr; }
   .form-panel { position: static; }
 }
 
-@media (max-width: 680px) {
+@media (max-width: 768px) {
   .dashboard { grid-template-columns: 1fr; }
+  
+  /* Ajusta o Header para não encavalar os links */
+  .header-inner { flex-direction: column; gap: 16px; text-align: center; }
+  .header-left, .header-right { width: 100%; justify-content: center; flex-wrap: wrap; }
+  
+  /* Ajusta os filtros e botões da tabela */
+  .filter-row { flex-direction: column; width: 100%; }
+  .filter-select, .search-input { width: 100%; }
+  
+  /* Ajusta a tabela para não vazar da tela */
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  th, td { font-size: 13px; padding: 12px 10px; }
+  
+  /* Esconde a coluna de categoria apenas se a tela for muito pequena */
+  .col-cat { display: none; }
 }
 
-@media (max-width: 600px) {
-  .container { padding: 16px 14px 48px; }
-  .header-inner { padding: 0 14px; }
-  .header-date { display: none; }
-  .card-value { font-size: 22px; }
-  .theme-label { display: none; }
-  .theme-btn { padding: 6px 10px; }
-  .filter-row { flex-direction: column; }
-  .search-input { min-width: 0; }
-  .modal-card { padding: 20px; }
+@media (prefers-reduced-motion: reduce) {
+  *, .card, .row-new { animation: none !important; transition: none !important; }
 }
 
 /* ══════════ ANIMATIONS ══════════ */

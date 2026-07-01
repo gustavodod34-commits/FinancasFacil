@@ -5,6 +5,16 @@
 // ── 1. VARIÁVEIS GLOBAIS E CONFIGURAÇÕES ─────────────
 const API_URL = 'https://financas-facil-api.onrender.com/api/transactions';
 const STORAGE_THEME_KEY = 'financasfacil_theme';
+const STORAGE_TOKEN_KEY = 'financas_token'; // <-- JWT fica aqui agora
+
+// Helper: monta os headers de autenticação com o JWT salvo no localStorage
+function getAuthHeaders(extra = {}) {
+  const token = localStorage.getItem(STORAGE_TOKEN_KEY);
+  return {
+    ...extra,
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+  };
+}
 
 let transactions  = [];
 let selectedType  = 'income';   // formulário principal
@@ -35,8 +45,9 @@ const CATEGORIES = {
 // ── 2. INICIALIZAÇÃO (Quando a página carrega) ────────
 document.addEventListener('DOMContentLoaded', () => {
     const userDataStr = localStorage.getItem('financas_user');
-    
-    if (userDataStr) {
+    const token = localStorage.getItem(STORAGE_TOKEN_KEY);
+
+    if (userDataStr && token) {
         const userData = JSON.parse(userDataStr);
         const primeiroNome = userData.name.split(' ')[0];
         document.getElementById('userNameDisplay').textContent = primeiroNome;
@@ -58,12 +69,11 @@ async function loadTransactionsFromAPI() {
     try {
         const response = await fetch(API_URL, {
             method: 'GET',
-            credentials: 'include', // <--- Envia o cookie para o servidor
-            headers: {
+            headers: getAuthHeaders({
                 'Cache-Control': 'no-cache, no-store, must-revalidate',
                 'Pragma': 'no-cache',
                 'Expires': '0'
-            }
+            })
         });
         
         if (response.ok) {
@@ -75,9 +85,12 @@ async function loadTransactionsFromAPI() {
             populateMonthFilter();
             populateCategoryFilter();
             render(); 
-        } else {
-            console.error('Sessão inválida. Redirecionando...');
-            // Se der 401, ele não vai dar logout imediato enquanto testamos
+        } else if (response.status === 401) {
+            // Token ausente/expirado/inválido -> manda pro login de verdade
+            console.error('Sessão expirada. Redirecionando para login...');
+            localStorage.removeItem('financas_user');
+            localStorage.removeItem(STORAGE_TOKEN_KEY);
+            window.location.href = 'login.html';
         }
     } catch (error) {
         console.error('Erro ao buscar transações:', error);
@@ -88,8 +101,7 @@ async function apiAddTransaction(newTx) {
     try {
         const response = await fetch(API_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
+            headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
             body: JSON.stringify(newTx)
         });
         if (response.ok) {
@@ -107,8 +119,7 @@ async function apiUpdateTransaction(id, updatedTx) {
     try {
         const response = await fetch(`${API_URL}/${id}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
+            headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
             body: JSON.stringify(updatedTx)
         });
         if (response.ok) {
@@ -126,7 +137,7 @@ async function apiDeleteTransaction(id) {
     try {
         const response = await fetch(`${API_URL}/${id}`, {
             method: 'DELETE',
-            credentials: 'include'
+            headers: getAuthHeaders()
         });
         if (response.ok) {
             await loadTransactionsFromAPI();
@@ -140,21 +151,11 @@ async function apiDeleteTransaction(id) {
 }
 
 // ── 4. FUNÇÕES GLOBAIS DE SISTEMA E TEMA ──────────────
-async function logout() {
-    try {
-        // 1. Avisa o backend para destruir o cookie de segurança
-        await fetch('https://financas-facil-api.onrender.com/api/auth/logout', { 
-            method: 'POST', 
-            credentials: 'include' 
-        });
-    } catch (error) {
-        console.error('Erro ao sair:', error);
-    }
-    
-    // 2. Limpa o nome do usuário da tela
+function logout() {
+    // Com JWT não há sessão no servidor para destruir (é stateless) —
+    // basta apagar o token e os dados do usuário do localStorage.
     localStorage.removeItem('financas_user');
-    
-    // 3. Redireciona para o login
+    localStorage.removeItem(STORAGE_TOKEN_KEY);
     window.location.href = 'login.html';
 }
 
@@ -726,8 +727,7 @@ try {
   // 3. Dispara a requisição real para a rota do chat da IA
   const response = await fetch('https://financas-facil-api.onrender.com/api/chat', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include', // <--- Permite que a IA saiba quem é o usuário logado
+    headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify({ message: userMessage })
   });
 

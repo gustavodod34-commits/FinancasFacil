@@ -155,7 +155,6 @@ async function handleAuth(event) {
       const response = await fetch('https://financas-facil-api.onrender.com/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // <--- ADICIONE ESTA LINHA EXATAMENTE AQUI!
         body: JSON.stringify({ email, password: pass })
       });
 
@@ -164,8 +163,10 @@ async function handleAuth(event) {
       if (response.ok) {
         feedback.style.color = 'var(--green)';
         feedback.textContent = 'Login aprovado! Entrando...';
-        
+
+        // JWT: guardamos o token no localStorage (nada de cookie cross-site)
         localStorage.setItem('financas_user', JSON.stringify(data.user));
+        localStorage.setItem('financas_token', data.token);
         setTimeout(() => { window.location.href = 'index.html'; }, 1000);
       } else {
         feedback.style.color = 'var(--red)';
@@ -183,7 +184,6 @@ async function handleAuth(event) {
       const response = await fetch('https://financas-facil-api.onrender.com/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ name, email, password: pass })
       });
 
@@ -192,9 +192,11 @@ async function handleAuth(event) {
       if (response.ok) {
         feedback.style.color = 'var(--green)';
         feedback.textContent = 'Conta criada com sucesso! Faça login.';
-        
+
+        // Guardamos aqui também, caso o backend já devolva token no registro
         localStorage.setItem('financas_user', JSON.stringify(data.user));
-        
+        if (data.token) localStorage.setItem('financas_token', data.token);
+
         setTimeout(() => {
           toggleAuthMode();
           btn.disabled = false;

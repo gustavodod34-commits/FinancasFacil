@@ -4,20 +4,23 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const cookieParser = require('cookie-parser');
 require('dotenv').config(); // Carrega as variáveis do arquivo .env
+// cookie-parser não é mais necessário: a autenticação agora usa JWT
+// enviado no header Authorization, não em cookies.
 
 // ==========================================
 // 2. CONFIGURAÇÃO INICIAL DO APP
 // ==========================================
 const app = express();
 
-app.use(express.json()); 
-app.use(cookieParser()); 
+app.use(express.json());
 app.set('trust proxy', 1);
 app.use(cors({
-    origin: 'https://financas-facil-hazel.vercel.app', 
-    credentials: true 
+    origin: 'https://financas-facil-hazel.vercel.app',
+    // "credentials: true" só é necessário para cookies cross-site.
+    // Com JWT no header Authorization não precisamos mais disso, mas
+    // deixamos habilitado sem custo — não afeta o funcionamento do JWT.
+    credentials: true
 }));
 
 // ==========================================

@@ -54,16 +54,14 @@ router.post('/login', async (req, res) => {
     // 3. Tudo certo! Vamos gerar o Token JWT (Bilhete VIP) válido por 7 dias
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
-    // 4. Envia o Token num Cookie HttpOnly (Proteção máxima contra Hackers)
-    res.cookie('token', token, {
-    httpOnly: true,
-    secure: true, // Exige HTTPS (como o Render e a Vercel usam HTTPS, é obrigatório)
-    sameSite: 'none' // Diz ao navegador: "Pode aceitar esse cookie de outro domínio"
-});
-
-    // 5. Responde ao frontend dizendo que deu tudo certo e envia os dados básicos
+    // 4. Envia o Token no corpo da resposta (JSON), NÃO em cookie.
+    //    Cookies "SameSite=None" cross-site (front na Vercel, back no Render)
+    //    são bloqueados/descartados por Safari e Chrome mobile — por isso o
+    //    401 no celular. O front agora guarda esse token no localStorage e
+    //    manda em "Authorization: Bearer <token>" em toda requisição.
     res.json({
       message: 'Login realizado com sucesso!',
+      token,
       user: { id: user._id, name: user.name, email: user.email }
     });
   } catch (error) {
@@ -76,12 +74,9 @@ router.post('/login', async (req, res) => {
 // ROTA 3: SAIR DA CONTA (LOGOUT)
 // ==========================================
 router.post('/logout', (req, res) => {
-  // Destrói o cookie 'token' no navegador do usuário
-  res.clearCookie('token', {
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production'
-  });
+  // Com JWT não há cookie/sessão no servidor para destruir — o front
+  // simplesmente apaga o token do localStorage. Mantemos a rota só
+  // por compatibilidade.
   res.json({ message: 'Logout realizado com sucesso!' });
 });
 

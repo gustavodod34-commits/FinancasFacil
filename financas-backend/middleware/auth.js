@@ -1,23 +1,28 @@
 const jwt = require('jsonwebtoken');
 
-module.exports = function (req, res, next) {
-  // Como você ativou o cookieParser no server.js, pegamos o token direto daqui
-  const token = req.cookies.token;
+// ==========================================
+// MIDDLEWARE DE AUTENTICAÇÃO — JWT (Bearer Token)
+// ==========================================
+// Antes: lia o token de req.cookies.token (cookie SameSite=None),
+// que é bloqueado por Safari/Chrome mobile em contexto cross-site.
+// Agora: lê do header "Authorization: Bearer <token>", que não sofre
+// nenhuma restrição de cookie do navegador.
 
-  if (!token) {
-    return res.status(401).json({ message: 'Acesso negado. Faça login primeiro.' });
+module.exports = function auth(req, res, next) {
+  const authHeader = req.headers['authorization'];
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'Acesso negado. Token não fornecido.' });
   }
 
+  const token = authHeader.split(' ')[1];
+
   try {
-    // Valida o token usando a sua chave secreta definida no .env
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
-    // Injeta os dados decodificados (que possuem o { id: user._id }) dentro do objeto req
-    req.user = decoded; 
-    
-    next(); // Autoriza a requisição a seguir para a rota correspondente
+    // Mantém o mesmo formato que suas rotas de transactions já esperam: req.user.id
+    req.user = { id: decoded.id };
+    next();
   } catch (error) {
-    console.error('Erro na validação do token:', error);
-    return res.status(401).json({ message: 'Sessão expirada ou inválida. Faça login novamente.' });
+    return res.status(401).json({ message: 'Sessão expirada ou token inválido. Faça login novamente.' });
   }
 };

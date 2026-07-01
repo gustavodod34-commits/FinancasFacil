@@ -682,50 +682,43 @@ tbody td { padding: 12px 20px; vertical-align: middle; }
 @media (max-width: 768px) {
   .dashboard { grid-template-columns: 1fr; }
 
-  /* Ajustes do Header no Mobile */
   .header-inner {
-    flex-direction: row; 
-    flex-wrap: wrap; 
+    flex-direction: row;
+    flex-wrap: wrap;
     justify-content: space-between;
     padding: 12px 14px;
-    gap: 12px;
+    gap: 10px;
   }
-  
-  /* 1. Logo isolada no topo e centralizada */
+
+  /* Achata os wrappers para os filhos entrarem direto no flex do header-inner */
+  .header-left,
+  .header-right {
+    display: contents;
+  }
+
+  /* 1ª linha: logo centralizada */
   .header-center {
     order: 1;
-    width: 100%;
+    flex-basis: 100%;
     display: flex;
     justify-content: center;
   }
-  
-  /* 2. Saudação ocupando toda a largura logo abaixo da logo e CENTRALIZADA */
-  .header-left { 
-    order: 2; 
-    width: 100%; /* Força a ocupação total da linha abaixo da logo */
-    display: flex;
-    justify-content: center; /* Centraliza horizontalmente */
+
+  /* 2ª linha: saudação centralizada */
+  .greeting-text {
+    order: 2;
+    flex-basis: 100%;
     text-align: center;
   }
-  .greeting-text {
-    width: 100%;
-    text-align: center; /* Garante que o texto fique no meio */
-  }
 
-  /* 3. Botões de Sair e Tema lado a lado na última linha do cabeçalho */
-  .header-right { 
-    order: 3; 
-    width: 100%; 
-    display: flex;
-    justify-content: space-between; /* Afasta o botão Sair do Tema para as pontas */
-    align-items: center;
-    margin-top: 4px; /* Pequeno espaçamento para respirar */
-  }
-  .header-date { display: none; } 
+  /* 3ª linha: Sair à esquerda, Tema à direita */
+  .logout-btn { order: 3; }
+  .theme-btn  { order: 4; }
+  .header-date { display: none; }
 
-  /* Tabela com rolagem interna e cabeçalho fixo no celular */
+  /* Tabela com rolagem interna e cabeçalho fixo */
   .table-wrap {
-    max-height: 450px; 
+    max-height: 450px;
     overflow-y: auto;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
@@ -734,7 +727,7 @@ tbody td { padding: 12px 20px; vertical-align: middle; }
     position: sticky;
     top: 0;
     z-index: 10;
-    background-color: var(--surface2); 
+    background-color: var(--surface2);
   }
 
   .filter-row { flex-direction: column; width: 100%; }
@@ -849,105 +842,6 @@ tbody td { padding: 12px 20px; vertical-align: middle; }
   margin-top: 8px;
 }
 
-/* ============================================================
-   RECONSTRUÇÃO DO HEADER - ALINHAMENTO CORRETO CONCEITUAL
-   ============================================================ */
-
-/* Limita a largura e alinha perfeitamente com a linha do painel/blackboard */
-.header-inner {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  
-  /* Ajuste de alinhamento com a janela da página */
-  max-width: 1200px !important; /* Defina aqui a mesma largura máxima do seu painel de cards */
-  width: 100% !important;
-  margin: 0 auto !important;     /* Centraliza o bloco inteiro na tela */
-  padding: 0 24px !important;    /* Margem de segurança interna para não colarem na borda em telas menores */
-}
-
-/* Polo Esquerdo: Alinha o botão Sair e o texto lado a lado */
-.header-left {
-  display: flex !important;
-  align-items: center !important;
-  gap: 16px !important;
-  flex: 1 !important; /* Ocupa espaço proporcional para ajudar a centralizar o meio */
-  justify-content: flex-start !important;
-}
-
-/* Centro: Força o logo a ficar travado exatamente no meio da tela */
-.header-center {
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
-  flex: 1 !important;
-}
-
-.header-center .logo {
-  display: flex !important;
-  align-items: center !important;
-  gap: 8px !important;
-}
-
-/* Polo Direito: Mantém os elementos originais encostados na direita */
-.header-right {
-  display: flex !important;
-  align-items: center !important;
-  gap: 20px !important;
-  flex: 1 !important;
-  justify-content: flex-end !important;
-}
-
-/* Ajuste fino na mensagem de saudação */
-.greeting-text {
-  color: var(--text-b) !important;
-  font-size: 0.9rem !important;
-  white-space: nowrap !important;
-}
-
-/* Estilização limpa do botão Sair (conforme você já tinha) */
-.logout-btn {
-  font-size: 0.75rem !important;
-  color: var(--red) !important;
-  text-decoration: none !important;
-  font-weight: 600 !important;
-  padding: 4px 10px !important;
-  border-radius: 6px !important;
-  background-color: var(--red-lt) !important;
-  transition: all 0.2s ease !important;
-  white-space: nowrap !important;
-}
-
-.logout-btn:hover {
-  background-color: var(--red) !important;
-  color: #ffffff !important;
-}
-
-/* Lado direito: Preserva o alinhamento da data e do botão de tema */
-.header-right {
-  display: flex !important;
-  align-items: center !important;
-  gap: 20px !important;
-}
-
-.header-date {
-  font-size: 0.85rem !important;
-  color: var(--text-m) !important;
-  white-space: nowrap !important;
-}
-
-.theme-btn {
-  display: flex !important;
-  align-items: center !important;
-  gap: 6px !important;
-  background-color: var(--surface2) !important;
-  border: 1px solid var(--border) !important;
-  padding: 6px 12px !important;
-  border-radius: var(--radius-sm, 8px) !important;
-  cursor: pointer !important;
-  color: var(--text-b) !important;
-  font-size: 0.8rem !important;
-}
 
 /* ══════════════════════════════════════════════════════════
    FLOATING CHATBOT WIDGET

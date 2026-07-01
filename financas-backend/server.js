@@ -4,6 +4,10 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+// No topo do arquivo, junto dos outros imports:
+const Transaction = require('./models/Transaction');
+const auth = require('./middleware/auth');
+
 require('dotenv').config(); // Carrega as variáveis do arquivo .env
 // cookie-parser não é mais necessário: a autenticação agora usa JWT
 // enviado no header Authorization, não em cookies.
@@ -43,7 +47,7 @@ const transactionRoutes = require('./routes/transactions');
 app.use('/api/transactions', transactionRoutes);
 
 // ── ROTA DO CHATBOT COM GROQ (Alta Velocidade) ───────
-app.post('/api/chat', async (req, res) => {
+app.post('/api/chat', auth, async (req, res) => {
   try {
     const { message } = req.body;
 
@@ -55,9 +59,25 @@ app.post('/api/chat', async (req, res) => {
       return res.status(500).json({ message: 'Chave de API do Groq não configurada no servidor.' });
     }
 
-    // Regras de personalidade do FinBot
+    // ── Busca as transações do usuário logado para dar contexto real à IA ──
+    const userTransactions = await Transaction.find({ user: req.user.id })
+      .sort({ date: -1 })
+      .limit(50); // limite de segurança para não estourar o prompt
+
+    let financialContext;
+
+    if (userTransactions.length === 0) {
+      financialContext = 'O usuário ainda não cadastrou nenhuma transação no sistema.';
+    } else {
+      const linhas = userTransactions.map(t => {
+        const sinal = t.type === 'income' ? 'Receita' : 'Despesa';
+        return `${t.date} | ${sinal} | ${t.description} | Categoria: ${t.category} | Valor: R$ ${t.amount.toFixed(2)}`;
+      });
+      financialContext = linhas.join('\n');
+    }
+
     // Regras de personalidade e conhecimento do FinBot
-    const systemInstruction = 
+    const systemInstruction =
       "Você é o FinBot, o assistente virtual do sistema FinançasFácil. " +
       "Siga estas regras estritamente:\n\n" +
 
@@ -82,11 +102,18 @@ app.post('/api/chat', async (req, res) => {
       "Fale sempre em termos de conceitos e caminhos seguros, como Renda Fixa, e deixe claro que a decisão " +
       "final é sempre do usuário.\n\n" +
 
-      "5. COMANDO DE TESTE: Se a mensagem do usuário for exatamente \"!teste\" (sem mais nada), " +
+      "5. CONTEXTO ATUAL DO USUÁRIO: use os dados abaixo (transações reais cadastradas pelo usuário) " +
+      "para responder perguntas pessoais sobre gastos, receitas, saldo ou onde economizar. " +
+      "Nunca invente valores que não estejam listados aqui. Se a pergunta não tiver relação com " +
+      "essas transações, ignore este bloco e responda normalmente.\n" +
+      "---\n" +
+      financialContext +
+      "\n---\n\n" +
+
+      "6. COMANDO DE TESTE: Se a mensagem do usuário for exatamente \"!teste\" (sem mais nada), " +
       "responda ÚNICA e EXCLUSIVAMENTE com a frase: Teste recebido, sistema operante. " +
       "Não adicione nenhuma outra palavra, saudação ou pontuação extra nesse caso.";
 
-      
     // Chamada direta para a API do Groq usando o padrão compatível com OpenAI
     const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',

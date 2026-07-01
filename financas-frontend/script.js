@@ -697,30 +697,22 @@ function handleChatKey(event) {
 
 // Envia a mensagem do usuário para o backend e renderiza a resposta da IA
 async function sendChatMessage() {
-  const input = document.getElementById('chatInput');
-  const messageText = input.value.trim();
-  
-  if (!messageText) return;
+  // 1. AS DUAS LINHAS ABAIXO SÃO AS QUE ESTAVAM FALTANDO!
+  const chatInput = document.getElementById('chatInput'); // Pega o campo de texto
+  const userMessage = chatInput.value.trim(); // Salva o texto na variável userMessage
 
-  const messagesContainer = document.getElementById('chatMessages');
+  // Se estiver vazio, não faz nada
+  if (!userMessage) return;
 
-  // 1. Renderiza a mensagem que você digitou
+  // Limpa o campo após o envio
+  chatInput.value = '';
+
+  // Adiciona a sua mensagem na tela
+  const chatMessages = document.getElementById('chatMessages');
   const userDiv = document.createElement('div');
   userDiv.className = 'message user-message';
-  userDiv.textContent = messageText;
-  messagesContainer.appendChild(userDiv);
-
-  // Limpa o campo de texto e joga o scroll para baixo
-  input.value = '';
-  messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-  // 2. Cria o balão temporário de "Digitando..."
-  const typingDiv = document.createElement('div');
-  typingDiv.className = 'message bot-message';
-  typingDiv.id = 'finbot-typing';
-  typingDiv.textContent = 'FinBot está pensando... 🤖';
-  messagesContainer.appendChild(typingDiv);
-  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  userDiv.textContent = userMessage;
+  chatMessages.appendChild(userDiv);
 
   // Procure o try/catch dentro da função do FinBot e substitua por este:
 try {

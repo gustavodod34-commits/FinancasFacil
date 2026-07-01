@@ -6,6 +6,8 @@
 const API_URL = 'https://financas-facil-api.onrender.com/api/transactions';
 const STORAGE_THEME_KEY = 'financasfacil_theme';
 const STORAGE_TOKEN_KEY = 'financas_token'; // <-- JWT fica aqui agora
+const STORAGE_CHAT_KEY = 'finbot_history';
+
 
 // Helper: monta os headers de autenticação com o JWT salvo no localStorage
 function getAuthHeaders(extra = {}) {
@@ -56,7 +58,8 @@ document.addEventListener('DOMContentLoaded', () => {
         setDefaultDate();
         loadTheme();
         updateCategoryOptions('category', selectedType);
-        
+        loadChatHistory(); // <-- restaura a conversa salva do FinBot
+
         // Busca do banco de dados do usuário logado
         loadTransactionsFromAPI(); 
     } else {
@@ -156,6 +159,7 @@ function logout() {
     // basta apagar o token e os dados do usuário do localStorage.
     localStorage.removeItem('financas_user');
     localStorage.removeItem(STORAGE_TOKEN_KEY);
+    localStorage.removeItem(STORAGE_CHAT_KEY);
     window.location.href = 'login.html';
 }
 
@@ -695,6 +699,42 @@ function handleChatKey(event) {
   }
 }
 
+// Varre o container do chat e salva o histórico atual no localStorage
+function saveChatHistory() {
+  const chatMessages = document.getElementById('chatMessages');
+  const messages = Array.from(chatMessages.querySelectorAll('.message')).map(el => ({
+    sender: el.classList.contains('user-message') ? 'user' : 'bot',
+    text: el.textContent
+  }));
+  localStorage.setItem(STORAGE_CHAT_KEY, JSON.stringify(messages));
+}
+
+// Lê o histórico salvo e reconstrói as mensagens na tela
+function loadChatHistory() {
+  const chatMessages = document.getElementById('chatMessages');
+  const saved = localStorage.getItem(STORAGE_CHAT_KEY);
+
+  if (!saved) return; // Sem histórico -> mantém a mensagem inicial padrão do bot
+
+  try {
+    const messages = JSON.parse(saved);
+    if (!Array.isArray(messages) || messages.length === 0) return;
+
+    chatMessages.innerHTML = ''; // Limpa o container (inclusive a mensagem padrão)
+
+    messages.forEach(msg => {
+      const div = document.createElement('div');
+      div.className = `message ${msg.sender === 'user' ? 'user-message' : 'bot-message'}`;
+      div.textContent = msg.text;
+      chatMessages.appendChild(div);
+    });
+
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  } catch (error) {
+    console.error('Erro ao carregar histórico do chat:', error);
+  }
+}
+
 // Envia a mensagem do usuário para o backend e renderiza a resposta da IA
 async function sendChatMessage() {
   const chatInput = document.getElementById('chatInput');
@@ -711,6 +751,7 @@ async function sendChatMessage() {
   userDiv.textContent = userMessage;
   chatMessages.appendChild(userDiv);
   chatMessages.scrollTop = chatMessages.scrollHeight;
+  saveChatHistory();
 
   // Indicador "digitando..."
   const typingDiv = document.createElement('div');
@@ -737,6 +778,7 @@ async function sendChatMessage() {
     botDiv.textContent = data.reply;
     chatMessages.appendChild(botDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
+    saveChatHistory();
 
   } catch (error) {
     console.error('Erro ao buscar resposta da IA:', error);
@@ -749,5 +791,6 @@ async function sendChatMessage() {
     errorDiv.textContent = 'Desculpe, estou com problemas para me conectar ao servidor agora. 😢';
     chatMessages.appendChild(errorDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
+    saveChatHistory();
   }
 }
